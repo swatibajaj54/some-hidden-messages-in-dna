@@ -19,4 +19,12 @@ def get_skew_diag_data(genome):
             result.append(output)
     return result
 
+def minimum_skew_value(genome):
+    skew_values = get_skew_diag_data(genome)
+    min_val = min(skew_values)
+    for i, item in enumerate(skew_values):
+        if item == min_val:
+            print(i, end=' ')
+minimum_skew_value('TAAAGACTGCCGAGAGGCCAACACGAGTGCTAGAACGAGGGGCGTAAACGCGGGTCCGAT')
+
 
