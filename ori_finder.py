@@ -1,5 +1,5 @@
 
-#with open('test1.txt') as input_file:
+
 def get_skew_diag_data(genome):
     output = 0
     result = []
@@ -25,6 +25,37 @@ def minimum_skew_value(genome):
     for i, item in enumerate(skew_values):
         if item == min_val:
             print(i, end=' ')
-minimum_skew_value('TAAAGACTGCCGAGAGGCCAACACGAGTGCTAGAACGAGGGGCGTAAACGCGGGTCCGAT')
+
+
+def get_hamming_mismatch(genome1, genome2):
+    count = 0
+    for idx, item in enumerate(genome1):
+        if genome1[idx] != genome2[idx]:
+            count += 1
+    return count
+
+
+def get_pattern_match(genome, pattern):
+    i = 0
+    output = []
+    while i < len(genome) - len(pattern)+1:
+        if genome[i:i + len(pattern)] == pattern:
+            output.append(i)
+        i = i+1
+    return output
+
+
+def get_approximate_pattern_match(genome, pattern, mismatch_count):
+    i = 0
+    output = []
+    while i < len(genome) - len(pattern) + 1:
+        if get_hamming_mismatch(pattern, genome[i:i+len(pattern)]) <= mismatch_count:
+            output.append(i)
+        i += 1
+
+    return output
+
+
+
 
 
