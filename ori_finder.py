@@ -19,13 +19,15 @@ def get_skew_diag_data(genome):
             result.append(output)
     return result
 
+
 def minimum_skew_value(genome):
     skew_values = get_skew_diag_data(genome)
     min_val = min(skew_values)
+    result = []
     for i, item in enumerate(skew_values):
         if item == min_val:
-            print(i, end=' ')
-
+            result.append(i)
+    return result
 
 def get_hamming_mismatch(genome1, genome2):
     count = 0
@@ -56,6 +58,20 @@ def get_approximate_pattern_match(genome, pattern, mismatch_count):
     return output
 
 
+def get_approximate_pattern_count(genome, pattern, mismatch_count):
+    i = 0
+    count = 0
+    while i < len(genome) - len(pattern) + 1:
+        if get_hamming_mismatch(pattern, genome[i:i+len(pattern)]) <= mismatch_count:
+            count += 1
+        i += 1
+    return count
 
 
+def frequent_words_with_mismatches(Text, k, d):
+    patterns = [0]
+    freqMap = {}
+    i = 0
+    while i<len(Text)-k:
+        neighborhood = neighbors(pattern, d)
 
