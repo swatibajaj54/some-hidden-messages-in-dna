@@ -1,2 +1,2 @@
-# Coursera's Bioinformatic course working code samples
+# Coursera's Bioinformatics course working code samples
 
