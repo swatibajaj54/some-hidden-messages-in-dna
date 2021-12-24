@@ -54,7 +54,6 @@ def get_approximate_pattern_match(genome, pattern, mismatch_count):
         if get_hamming_mismatch(pattern, genome[i:i+len(pattern)]) <= mismatch_count:
             output.append(i)
         i += 1
-
     return output
 
 
@@ -67,11 +66,44 @@ def get_approximate_pattern_count(genome, pattern, mismatch_count):
         i += 1
     return count
 
+def frequent_words(text, k):
+    i = 0
+    d = {}
+    while i <= len(text) - k:
+        pattern = text[i:i + k]
+        d[pattern] = d.get(pattern, 0) + 1
+        i = i + 1
+    print(d)
+    max_count = d[max(d, key=d.get)]
+    print(max_count)
+    frequent_pattern = []
+    for key in d:
+        if d[key] == max_count:
+            frequent_pattern.append(key)
+    return frequent_pattern
+
+from neighbors import neighbors
+
+
 
 def frequent_words_with_mismatches(Text, k, d):
-    patterns = [0]
+    patterns = []
     freqMap = {}
     i = 0
-    while i<len(Text)-k:
-        neighborhood = neighbors(pattern, d)
+    while i <= len(Text)-k:
+        pattern = Text[i:i + k]
+        neighborhood = list(neighbors(pattern, d))
+        # print(neighborhood)
+        for item in neighborhood:
+            freqMap[item] = freqMap.get(item, 0) + 1
+        i = i+1
+    max_count = freqMap[max(freqMap, key=freqMap.get)]
+    # print(max_count)
+    # print(freqMap)
+    for key in freqMap:
+        if freqMap[key] == max_count:
+            patterns.append(key)
+    return patterns
+
+
 
