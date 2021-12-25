@@ -1,14 +1,12 @@
 from ori_finder import get_skew_diag_data, get_hamming_mismatch, get_pattern_match, minimum_skew_value, get_approximate_pattern_match, frequent_words_with_mismatches, get_approximate_pattern_count
-from d1_neighbours import d1_neighbours
 from neighbors import neighbors
-
+from ori_finder import frequent_words_with_mismatches_and_rc
 if __name__ == '__main__':
-    with open('frequent_mismatch.txt') as f:
+    with open('aprox_frequent_rc.txt') as f:
         Text = f.readline()
-    # Text = 'AGGCGG'
-    k = 6
-    d = 3
-    print(frequent_words_with_mismatches(Text, k, d))
+    k = 5
+    d = 2
+    print(frequent_words_with_mismatches_and_rc(Text, k, d))
 
     # print(d1_neighbours("ATC"))
     # print(neighbors("ACG", 1))

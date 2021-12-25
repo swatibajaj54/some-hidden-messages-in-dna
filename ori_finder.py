@@ -98,12 +98,45 @@ def frequent_words_with_mismatches(Text, k, d):
             freqMap[item] = freqMap.get(item, 0) + 1
         i = i+1
     max_count = freqMap[max(freqMap, key=freqMap.get)]
-    # print(max_count)
-    # print(freqMap)
+    print(max_count)
+    print(freqMap)
     for key in freqMap:
         if freqMap[key] == max_count:
             patterns.append(key)
     return patterns
+
+
+def frequent_words_with_mismatches_and_rc(Text, k, d):
+    patterns = []
+    freqMap = {}
+    i = 0
+    while i <= len(Text)-k:
+        pattern = Text[i:i + k]
+        forward_neighborhood = list(neighbors(pattern, d))
+        reverse_neighbourhood = list(neighbors(reverse_compliment(pattern), d))
+        for item in forward_neighborhood:
+            freqMap[item] = freqMap.get(item, 0) + 1
+        for item in reverse_neighbourhood:
+            freqMap[item] = freqMap.get(item, 0) + 1
+        i = i+1
+    max_count = freqMap[max(freqMap, key=freqMap.get)]
+    for key in freqMap:
+        if freqMap[key] == max_count:
+            patterns.append(key)
+    return patterns
+
+
+def reverse_compliment(text):
+    Compliment = {'C': 'G',
+                  'G': 'C',
+                  'A': 'T',
+                  'T': 'A'}
+    output = []
+    for key in text:
+        output.append(Compliment[key])
+    reverse_output = (output[::-1])
+    output_str1 = ''.join(reverse_output)
+    return output_str1
 
 
 
