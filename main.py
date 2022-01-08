@@ -1,12 +1,30 @@
 from ori_finder import get_skew_diag_data, get_hamming_mismatch, get_pattern_match, minimum_skew_value, get_approximate_pattern_match, frequent_words_with_mismatches, get_approximate_pattern_count
 from neighbors import neighbors
-from ori_finder import frequent_words_with_mismatches_and_rc
+from ori_finder import frequent_words_with_mismatches_and_rc, motif_enumeration
 if __name__ == '__main__':
-    with open('aprox_frequent_rc.txt') as f:
-        Text = f.readline()
-    k = 5
-    d = 2
-    print(frequent_words_with_mismatches_and_rc(Text, k, d))
+    Dna = ['ATTTGGC', 'TGCCTTA', 'CGGTATC', 'GAAAATT']
+    Dna = ['AAAAA', 'AAAAA', 'AACAA']
+    # Dna = ['ACGT', 'ACGT', 'ACGT']
+    k = 3
+    d = 0
+    print(motif_enumeration(Dna, k, d))
+
+    # genome = open('Salmonella.txt').read().replace('\n', '')
+
+    # # print(minimum_skew_value(genome))
+    # Text = genome[3764856: 3764856 + 500]
+    # print(Text)
+    # k = 9
+    # d = 1
+    # print(frequent_words_with_mismatches_and_rc(Text, k, d))
+
+
+# pattern = 'GCGCCGTAC'
+# d = 3
+# result = neighbors(pattern, d)
+# for item in result:
+#     print(item, end=" ")
+
 
     # print(d1_neighbours("ATC"))
     # print(neighbors("ACG", 1))

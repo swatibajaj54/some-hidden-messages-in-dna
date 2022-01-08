@@ -123,6 +123,7 @@ def frequent_words_with_mismatches_and_rc(Text, k, d):
     for key in freqMap:
         if freqMap[key] == max_count:
             patterns.append(key)
+    print(max_count)
     return patterns
 
 
@@ -138,5 +139,41 @@ def reverse_compliment(text):
     output_str1 = ''.join(reverse_output)
     return output_str1
 
+# MotifEnumeration(Dna, k, d)
+#     Patterns ← an empty set
+#     for each k-mer Pattern in Dna
+#         for each k-mer Pattern’ differing from Pattern by at most d mismatches
+#             if Pattern' appears in each string from Dna with at most d mismatches
+#                 add Pattern' to Patterns
+#     remove duplicates from Patterns
+#?duplicates
 
 
+def exists(pattern, dna_list):
+    for dnaString in dna_list:
+        if pattern not in dnaString:
+            return False
+    return True
+
+
+def variantExists(pattern, dna_list, d):
+    variants = list(neighbors(pattern, d))
+    for variant in variants:
+        if exists(variant, dna_list):
+            return True
+    return False
+
+
+def motif_enumeration(Dna, k, d):
+    patterns = set()
+    for item in Dna:
+        i = 0
+        while i <= len(item)-k:
+            pattern = item[i:i+k]
+            neighborhood = list(neighbors(pattern, d))
+            print(pattern, ' ', neighborhood)
+            for approx_pattern in neighborhood:
+                if variantExists(approx_pattern, Dna, d):
+                    patterns.add(approx_pattern)
+            i = i+1
+    return patterns
