@@ -144,3 +144,97 @@ def profile_most_probable_k_mer(text, k, matrix_profile):
             most_probable_k_mer = k_mer
         i = i+1
     return most_probable_k_mer
+
+
+# GreedyMotifSearch(Dna, k, t)
+#     BestMotifs ← motif matrix formed by first k-mers in each string from Dna
+#     for each k-mer Motif in the first string from Dna
+#         Motif1 ← Motif
+#         for i = 2 to t
+#             form Profile from motifs Motif1, …, Motifi - 1
+#             Motifi ← Profile-most probable k-mer in the i-th string in Dna
+#         Motifs ← (Motif1, …, Motift)
+#         if Score(Motifs) < Score(BestMotifs)
+#             BestMotifs ← Motifs
+#     return BestMotifs
+
+# A        AGT, AAA, ggg, ttt, aaa
+
+#C
+# G
+#T
+def motif_matrix(motifs, k):
+    nucleotides = {'A': [0]*k, 'T': [0]*k, 'C': [0]*k, 'G': [0]*k}
+    t = len(motifs)
+    for motif in motifs:
+        for index, nucleotide in enumerate(motif):
+            nucleotides[nucleotide][index] = nucleotides[nucleotide][index] + 1
+    print(nucleotides)
+    for key in nucleotides:
+        for index, nucleotide in enumerate(nucleotides[key]):
+            nucleotides[key][index] = nucleotides[key][index]/t
+    return nucleotides
+
+
+def score_matrix(motifs, k):
+    nucleotides = {'A': [0]*k, 'T': [0]*k, 'C': [0]*k, 'G': [0]*k}
+    for motif in motifs:
+        for index, nucleotide in enumerate(motif):
+            nucleotides[nucleotide][index] = nucleotides[nucleotide][index] + 1
+    i = 0
+    matrix_score = 0
+    while i < k:
+        output = []
+        column_score = 0
+        for key in nucleotides:
+            output.append(nucleotides[key][i])
+        max_consumed = False
+        max_item = max(output)
+        for item in output:
+            if item == max_item:
+                if not max_consumed:
+                    max_consumed = True
+                    continue
+                else:
+                    column_score = column_score + item
+            else:
+                column_score = column_score+item
+        matrix_score = matrix_score + column_score
+        i = i + 1
+    return matrix_score
+
+
+def greedy_motif_search(dna, k, t):
+    ist_k_mers = []
+    for string in dna:
+          ist_k_mers.append(string[:k])
+    best_motifs = score_matrix(ist_k_mers, k)
+    print(best_motifs)
+    first_string = dna[0]
+    for index, item in enumerate(first_string):
+        if index <= len(first_string) - k:
+            k_mer = first_string[index: index+k]
+            motifs = [k_mer]
+            input_matrix = motif_matrix(motifs, k)
+            print('motifs: ', motifs)
+            print('input_matrix: ', input_matrix)
+            i = 1
+            while i < t:
+                motif_i = profile_most_probable_k_mer(dna[i], k, input_matrix)
+                print('motif_i ', motif_i)
+                motifs.append(motif_i)
+                input_matrix = motif_matrix(motifs, k)
+                i=i+1
+            new_matrix = score_matrix(motifs, k)
+            if new_matrix < best_motifs:
+                best_motifs = new_matrix
+    return best_motifs
+
+
+
+
+
+
+
+
+
