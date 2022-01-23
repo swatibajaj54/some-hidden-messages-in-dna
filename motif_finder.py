@@ -1,7 +1,6 @@
 import math
 from math import log2
-
-
+from ori_finder import get_hamming_mismatch, neighbors
 
 
 def exists(pattern, dna_list):
@@ -44,22 +43,6 @@ def entropy_matrix(twoD_input):
     return sum
 
 
-
-# def motif_enumeration(Dna, k, d):
-#     patterns = set()
-#     for item in Dna:
-#         i = 0
-#         while i <= len(item)-k:
-#             pattern = item[i:i+k]
-#             neighborhood = list(neighbors(pattern, d))
-#             print(pattern, ' ', neighborhood)
-#             for approx_pattern in neighborhood:
-#                 if variantExists(approx_pattern, Dna, d):
-#                     patterns.add(approx_pattern)
-#             i = i+1
-#     return patterns
-
-
 def motif_enumeration1(seq, k, d):
     kmer_list = [set() for _ in seq] # Creating a list of sets length len(seq)
     for pos, pattern in enumerate(seq):
@@ -95,15 +78,6 @@ def distance_between_pattern_and_string(pattern, dna):
     return distance
 
 
-# MedianString(Dna, k)
-#     distance ← ∞
-#     for each k-mer Pattern from AA…AA to TT…TT
-#         if distance > d(Pattern, Dna)
-#              distance ← d(Pattern, Dna)
-#              Median ← Pattern
-#     return Median
-
-
 def median_string(dna, k):
     median = ''
     distance = math.inf
@@ -119,20 +93,9 @@ def median_string(dna, k):
     return median
 
 
-def profile_most_probable_k_mer(text, k, matrix_profile):
-    with open('input.txt') as file:
-        lines = file.readlines()
-        lines = [line.rstrip() for line in lines]
-    text = lines[0]
-    k = int(lines[1])
-    probability = {
-        'A': [float(i) for i in lines[2].split()],
-        'C': [float(i) for i in lines[3].split()],
-        'G': [float(i) for i in lines[4].split()],
-        'T': [float(i) for i in lines[5].split()]
-    }
+def profile_most_probable_k_mer(text, k, probability):
     i = 0
-    output = 0
+    output = -1
     most_probable_k_mer = ''
     while i <= len(text)-k:
         k_mer = text[i:i+k]
@@ -146,30 +109,13 @@ def profile_most_probable_k_mer(text, k, matrix_profile):
     return most_probable_k_mer
 
 
-# GreedyMotifSearch(Dna, k, t)
-#     BestMotifs ← motif matrix formed by first k-mers in each string from Dna
-#     for each k-mer Motif in the first string from Dna
-#         Motif1 ← Motif
-#         for i = 2 to t
-#             form Profile from motifs Motif1, …, Motifi - 1
-#             Motifi ← Profile-most probable k-mer in the i-th string in Dna
-#         Motifs ← (Motif1, …, Motift)
-#         if Score(Motifs) < Score(BestMotifs)
-#             BestMotifs ← Motifs
-#     return BestMotifs
-
-# A        AGT, AAA, ggg, ttt, aaa
-
-#C
-# G
-#T
 def motif_matrix(motifs, k):
     nucleotides = {'A': [0]*k, 'T': [0]*k, 'C': [0]*k, 'G': [0]*k}
     t = len(motifs)
     for motif in motifs:
         for index, nucleotide in enumerate(motif):
             nucleotides[nucleotide][index] = nucleotides[nucleotide][index] + 1
-    print(nucleotides)
+    # print(nucleotides)
     for key in nucleotides:
         for index, nucleotide in enumerate(nucleotides[key]):
             nucleotides[key][index] = nucleotides[key][index]/t
@@ -206,6 +152,7 @@ def score_matrix(motifs, k):
 
 def greedy_motif_search(dna, k, t):
     ist_k_mers = []
+    result = ''
     for string in dna:
           ist_k_mers.append(string[:k])
     best_motifs = score_matrix(ist_k_mers, k)
@@ -216,19 +163,17 @@ def greedy_motif_search(dna, k, t):
             k_mer = first_string[index: index+k]
             motifs = [k_mer]
             input_matrix = motif_matrix(motifs, k)
-            print('motifs: ', motifs)
-            print('input_matrix: ', input_matrix)
             i = 1
             while i < t:
                 motif_i = profile_most_probable_k_mer(dna[i], k, input_matrix)
-                print('motif_i ', motif_i)
                 motifs.append(motif_i)
                 input_matrix = motif_matrix(motifs, k)
                 i=i+1
             new_matrix = score_matrix(motifs, k)
             if new_matrix < best_motifs:
                 best_motifs = new_matrix
-    return best_motifs
+                result = motifs
+    return result
 
 
 
