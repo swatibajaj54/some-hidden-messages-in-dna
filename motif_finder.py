@@ -177,9 +177,43 @@ def greedy_motif_search(dna, k, t):
 
 
 
+def motif_matrix_with_pseudocounts(motifs, k):
+    nucleotides = {'A': [1]*k, 'T': [1]*k, 'C': [1]*k, 'G': [1]*k}
+    t = len(motifs)
+    for motif in motifs:
+        for index, nucleotide in enumerate(motif):
+            nucleotides[nucleotide][index] = nucleotides[nucleotide][index] + 1
+    # print(nucleotides)
+    for key in nucleotides:
+        for index, nucleotide in enumerate(nucleotides[key]):
+            nucleotides[key][index] = nucleotides[key][index]/(t+4)
+    return nucleotides
 
 
 
-
+def greedy_motif_search_with_pseudocounts(dna, k, t):
+    ist_k_mers = []
+    result = ''
+    for string in dna:
+          ist_k_mers.append(string[:k])
+    best_motifs = score_matrix(ist_k_mers, k)
+    print(best_motifs)
+    first_string = dna[0]
+    for index, item in enumerate(first_string):
+        if index <= len(first_string) - k:
+            k_mer = first_string[index: index+k]
+            motifs = [k_mer]
+            input_matrix = motif_matrix_with_pseudocounts(motifs, k)
+            i = 1
+            while i < t:
+                motif_i = profile_most_probable_k_mer(dna[i], k, input_matrix)
+                motifs.append(motif_i)
+                input_matrix = motif_matrix_with_pseudocounts(motifs, k)
+                i=i+1
+            new_matrix = score_matrix(motifs, k)
+            if new_matrix < best_motifs:
+                best_motifs = new_matrix
+                result = motifs
+    return result
 
 
