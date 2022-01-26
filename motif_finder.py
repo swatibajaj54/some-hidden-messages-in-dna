@@ -58,7 +58,6 @@ def motif_enumeration1(seq, k, d):
     res = kmer_list[0]
     for pos in range(1, len(kmer_list)):
         res = res & kmer_list[pos]
-
     return res
 
 
@@ -83,12 +82,17 @@ def median_string(dna, k):
     distance = math.inf
     for string in dna:
         i = 0
-        k_mer = string[i:i + k]
+        temp_list = []
         while i <= len(string) - k:
-            if distance > distance_between_pattern_and_string(k_mer, dna):
-                distance = distance_between_pattern_and_string(k_mer, dna)
-                print(distance)
-                median = k_mer
+            k_mer = string[i:i + k]
+            neighbours = neighbors(k_mer, 1)
+            for neighbouring_k_mer in neighbours:
+                d = distance_between_pattern_and_string(neighbouring_k_mer, dna)
+                temp_list.append(d)
+                if distance > d:
+                    distance = d
+                    print(distance)
+                    median = k_mer
             i = i + 1
     return median
 
@@ -196,8 +200,8 @@ def greedy_motif_search_with_pseudocounts(dna, k, t):
     result = ''
     for string in dna:
           ist_k_mers.append(string[:k])
-    best_motifs = score_matrix(ist_k_mers, k)
-    print(best_motifs)
+    best_motifs_score = score_matrix(ist_k_mers, k)
+    print(best_motifs_score)
     first_string = dna[0]
     for index, item in enumerate(first_string):
         if index <= len(first_string) - k:
@@ -210,10 +214,51 @@ def greedy_motif_search_with_pseudocounts(dna, k, t):
                 motifs.append(motif_i)
                 input_matrix = motif_matrix_with_pseudocounts(motifs, k)
                 i=i+1
-            new_matrix = score_matrix(motifs, k)
-            if new_matrix < best_motifs:
-                best_motifs = new_matrix
+            new_matrix_score = score_matrix(motifs, k)
+            if new_matrix_score < best_motifs_score:
+                best_motifs_score = new_matrix_score
                 result = motifs
     return result
+
+
+# RandomizedMotifSearch(Dna, k, t)
+#     randomly select k-mers Motifs = (Motif1, …, Motift) in each string from Dna
+#     BestMotifs ← Motifs
+#     while forever
+#         Profile ← Profile(Motifs)
+#         Motifs ← Motifs(Profile, Dna)
+#         if Score(Motifs) < Score(BestMotifs)
+#             BestMotifs ← Motifs
+#         else
+#             return BestMotifs
+
+
+import random
+
+
+def randomized_motif_search(dna, k):
+    motifs = []
+    for string in dna:
+        random_index = random.randint(0, len(string)-k-1)
+        k_mer = string[random_index:random_index+k]
+        motifs.append(k_mer)
+    score_best_motifs = score_matrix(motifs, k)
+    same_score_count = 1000
+    while True:
+        profile = motif_matrix_with_pseudocounts(motifs, k)
+        probable_motifs = []
+        for string in dna:
+            probable_motif = profile_most_probable_k_mer(string, k, profile)
+            probable_motifs.append(probable_motif)
+        motifs = probable_motifs
+        score_motifs = score_matrix(motifs, k)
+        if score_motifs < score_best_motifs:
+            score_best_motifs = score_motifs
+        else:
+            same_score_count = same_score_count - 1
+            print("Bad score: ", score_motifs)
+        if same_score_count == 0:
+            print("Score: ", score_best_motifs)
+            return motifs
 
 
