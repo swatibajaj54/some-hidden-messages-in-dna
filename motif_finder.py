@@ -221,30 +221,32 @@ def greedy_motif_search_with_pseudocounts(dna, k, t):
     return result
 
 
-# RandomizedMotifSearch(Dna, k, t)
-#     randomly select k-mers Motifs = (Motif1, …, Motift) in each string from Dna
-#     BestMotifs ← Motifs
-#     while forever
-#         Profile ← Profile(Motifs)
-#         Motifs ← Motifs(Profile, Dna)
-#         if Score(Motifs) < Score(BestMotifs)
-#             BestMotifs ← Motifs
-#         else
-#             return BestMotifs
 
 
 import random
+
+def best_score_from_random_motif(dna, k):
+    best_score = math.inf
+    best_motifs = []
+    for i in range(100):
+        score, motifs = randomized_motif_search(dna, k)
+        if score < best_score:
+            best_score = score
+            best_motifs = motifs
+    print("score: ", best_score)
+    print("best motifs: ", best_motifs)
+    return best_motifs
 
 
 def randomized_motif_search(dna, k):
     motifs = []
     for string in dna:
-        random_index = random.randint(0, len(string)-k-1)
+        random_index = random.randint(0, len(string)-k)
         k_mer = string[random_index:random_index+k]
         motifs.append(k_mer)
     score_best_motifs = score_matrix(motifs, k)
-    same_score_count = 1000
-    while True:
+    score_not_improved_times = 0
+    while score_not_improved_times < 1:
         profile = motif_matrix_with_pseudocounts(motifs, k)
         probable_motifs = []
         for string in dna:
@@ -254,11 +256,78 @@ def randomized_motif_search(dna, k):
         score_motifs = score_matrix(motifs, k)
         if score_motifs < score_best_motifs:
             score_best_motifs = score_motifs
+            score_not_improved_times = 0
         else:
-            same_score_count = same_score_count - 1
-            print("Bad score: ", score_motifs)
-        if same_score_count == 0:
-            print("Score: ", score_best_motifs)
-            return motifs
+            score_not_improved_times = score_not_improved_times + 1
+    return score_best_motifs, motifs
+
+
+def profile_randomly_generated_k_mer(string, k, probability):
+    i = 0
+    k_mers_list = []
+    while i <= len(string) - k:
+        k_mer = string[i:i+k]
+        k_mers_list.append(k_mer)
+        i = i + 1
+    k_mers_probability = []
+    for k_mer in k_mers_list:
+        current_value = 1
+        for index, char in enumerate(k_mer):
+            current_value = current_value * float(probability.get(char)[index])
+        k_mers_probability.append(current_value)
+    # probability_weights = ",".join(k_mers_probability)
+    x = random.choices(k_mers_list, weights=k_mers_probability, k=1)
+    return x[0]
+
+
+
+# GibbsSampler(Dna, k, t, N)
+#     randomly select k-mers Motifs = (Motif1, …, Motift) in each string from Dna
+#     BestMotifs ← Motifs
+#     for j ← 1 to N
+#         i ← Random(t)
+#         Profile ← profile matrix constructed from all strings in Motifs except for Motifi
+#         Motifi ← Profile-randomly generated k-mer in the i-th sequence
+#         if Score(Motifs) < Score(BestMotifs)
+#             BestMotifs ← Motifs
+#     return BestMotifs
+
+
+def gibbs_sampler(dna, k, t, n):
+    best_motifs = []
+    best_score = math.inf
+    for i in range(n):
+        for string in dna:
+            random_index = random.randint(0, len(string)-k)
+            k_mer = string[random_index:random_index+k]
+            best_motifs.append(k_mer)
+        score_best_motifs = score_matrix(best_motifs, k)
+        motifs = best_motifs
+        score_not_improved_times = 0
+        while score_not_improved_times < 3000:
+            random_dna_index = random.randint(0, t-1)
+            del motifs[random_dna_index]
+            profile = motif_matrix_with_pseudocounts(motifs, k)
+            motif_i = profile_randomly_generated_k_mer(dna[random_dna_index], k, profile)
+            motifs.insert(random_dna_index, motif_i)
+            score_motifs = score_matrix(motifs, k)
+            if score_motifs < score_best_motifs:
+                score_best_motifs = score_motifs
+                score_not_improved_times = 0
+            else:
+                score_not_improved_times = score_not_improved_times + 1
+        if score_best_motifs < best_score:
+            best_score = score_best_motifs
+            best_motifs = motifs
+            print('New Best Score: ', best_score)
+    return best_score, best_motifs
+
+
+
+
+
+
+
+
 
 
