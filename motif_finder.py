@@ -1,7 +1,7 @@
 import math
 from math import log2
 from ori_finder import get_hamming_mismatch, neighbors
-
+import random
 
 def exists(pattern, dna_list):
     for dnaString in dna_list:
@@ -20,6 +20,8 @@ def variantExists(pattern, dna_list, d):
 
 
 def entropy_column(input):
+    """returns column entropy of entropy matrix.
+    input is motifs"""
     nucleotides = {'A': 0, 'T': 0, 'C': 0, 'G': 0}
     for item in input:
         nucleotides[item] = nucleotides[item]+1
@@ -36,6 +38,7 @@ def entropy_column(input):
     return sum
 
 def entropy_matrix(twoD_input):
+    """returns entropy of motif matrix"""
     sum = 0
     for item in twoD_input:
         print(item)
@@ -44,6 +47,10 @@ def entropy_matrix(twoD_input):
 
 
 def motif_enumeration1(seq, k, d):
+    """A brute force approach for motif finding
+    returns (k, d)-motifs in Dna, (Given a collection of strings Dna and an integer d,
+    a k-mer (string) is a (k,d)-motif if it appears in every string from Dna with at most d mismatches.
+    it is slow for large values of k and d)"""
     kmer_list = [set() for _ in seq] # Creating a list of sets length len(seq)
     for pos, pattern in enumerate(seq):
         for k_pos in range(len(pattern) - k + 1):
@@ -51,7 +58,6 @@ def motif_enumeration1(seq, k, d):
             patn = pattern[k_pos:k_pos+k]
             # add them to a set() in a kmer_list
             kmer_list[pos].update(neighbors(patn, d))
-
     patterns = kmer_list[0]
     # for k_set in kmer_list:
     #     res = set1 & set2 & set3 & set4
@@ -63,6 +69,8 @@ def motif_enumeration1(seq, k, d):
 
 
 def distance_between_pattern_and_string(pattern, dna):
+    """returns the sum of distances between Pattern and each string in Dna
+    it returns a distance"""
     k = len(pattern)
     distance = 0
     for string in dna:
@@ -78,6 +86,7 @@ def distance_between_pattern_and_string(pattern, dna):
 
 
 def median_string(dna, k):
+    """returns a k-mer Pattern that minimizes d(Pattern, Dna) among all possible choices of k-mers"""
     median = ''
     distance = math.inf
     for string in dna:
@@ -98,6 +107,8 @@ def median_string(dna, k):
 
 
 def profile_most_probable_k_mer(text, k, probability):
+    """returns the profile-most probable k-mers (""returns the profile-most probable k-mers in Text.
+    k_mer having maximum probability) in Text."""
     i = 0
     output = -1
     most_probable_k_mer = ''
@@ -113,7 +124,8 @@ def profile_most_probable_k_mer(text, k, probability):
     return most_probable_k_mer
 
 
-def motif_matrix(motifs, k):
+def probability_matrix(motifs, k):
+    """returns probability matrix"""
     nucleotides = {'A': [0]*k, 'T': [0]*k, 'C': [0]*k, 'G': [0]*k}
     t = len(motifs)
     for motif in motifs:
@@ -127,6 +139,7 @@ def motif_matrix(motifs, k):
 
 
 def score_matrix(motifs, k):
+    """returns matrix score formed from motifs"""
     nucleotides = {'A': [0]*k, 'T': [0]*k, 'C': [0]*k, 'G': [0]*k}
     for motif in motifs:
         for index, nucleotide in enumerate(motif):
@@ -155,6 +168,8 @@ def score_matrix(motifs, k):
 
 
 def greedy_motif_search(dna, k, t):
+    """A collection of strings (k_mer from each DNA string),
+    BestMotifs resulting from applying GreedyMotifSearch(Dna, k, t)"""
     ist_k_mers = []
     result = ''
     for string in dna:
@@ -166,12 +181,12 @@ def greedy_motif_search(dna, k, t):
         if index <= len(first_string) - k:
             k_mer = first_string[index: index+k]
             motifs = [k_mer]
-            input_matrix = motif_matrix(motifs, k)
+            input_matrix = probability_matrix(motifs, k)
             i = 1
             while i < t:
                 motif_i = profile_most_probable_k_mer(dna[i], k, input_matrix)
                 motifs.append(motif_i)
-                input_matrix = motif_matrix(motifs, k)
+                input_matrix = probability_matrix(motifs, k)
                 i=i+1
             new_matrix = score_matrix(motifs, k)
             if new_matrix < best_motifs:
@@ -181,7 +196,8 @@ def greedy_motif_search(dna, k, t):
 
 
 
-def motif_matrix_with_pseudocounts(motifs, k):
+def probability_matrix_with_pseudocounts(motifs, k):
+    """returns probability matrix applying Laplace's rule"""
     nucleotides = {'A': [1]*k, 'T': [1]*k, 'C': [1]*k, 'G': [1]*k}
     t = len(motifs)
     for motif in motifs:
@@ -196,6 +212,8 @@ def motif_matrix_with_pseudocounts(motifs, k):
 
 
 def greedy_motif_search_with_pseudocounts(dna, k, t):
+    """returns a collection of strings BestMotifs resulting from
+    applying GreedyMotifSearch(Dna, k, t) with pseudocounts"""
     ist_k_mers = []
     result = ''
     for string in dna:
@@ -207,12 +225,12 @@ def greedy_motif_search_with_pseudocounts(dna, k, t):
         if index <= len(first_string) - k:
             k_mer = first_string[index: index+k]
             motifs = [k_mer]
-            input_matrix = motif_matrix_with_pseudocounts(motifs, k)
+            input_matrix = probability_matrix_with_pseudocounts(motifs, k)
             i = 1
             while i < t:
                 motif_i = profile_most_probable_k_mer(dna[i], k, input_matrix)
                 motifs.append(motif_i)
-                input_matrix = motif_matrix_with_pseudocounts(motifs, k)
+                input_matrix = probability_matrix_with_pseudocounts(motifs, k)
                 i=i+1
             new_matrix_score = score_matrix(motifs, k)
             if new_matrix_score < best_motifs_score:
@@ -223,9 +241,8 @@ def greedy_motif_search_with_pseudocounts(dna, k, t):
 
 
 
-import random
-
 def best_score_from_random_motif(dna, k):
+    """returns a collection BestMotifs resulting from running RandomizedMotifSearch(Dna, k, t) many times"""
     best_score = math.inf
     best_motifs = []
     for i in range(100):
@@ -239,6 +256,8 @@ def best_score_from_random_motif(dna, k):
 
 
 def randomized_motif_search(dna, k):
+    """returns a collection of best motifs randomly selected from each string
+    of Dna. May generate a rather poor set of motifs, thus run many times to generate the best set"""
     motifs = []
     for string in dna:
         random_index = random.randint(0, len(string)-k)
@@ -247,7 +266,7 @@ def randomized_motif_search(dna, k):
     score_best_motifs = score_matrix(motifs, k)
     score_not_improved_times = 0
     while score_not_improved_times < 1:
-        profile = motif_matrix_with_pseudocounts(motifs, k)
+        profile = probability_matrix_with_pseudocounts(motifs, k)
         probable_motifs = []
         for string in dna:
             probable_motif = profile_most_probable_k_mer(string, k, profile)
@@ -263,6 +282,7 @@ def randomized_motif_search(dna, k):
 
 
 def profile_randomly_generated_k_mer(string, k, probability):
+    """generate random k_mer based on weight as per their probability"""
     i = 0
     k_mers_list = []
     while i <= len(string) - k:
@@ -286,19 +306,9 @@ def profile_randomly_generated_k_mer(string, k, probability):
 
 
 
-# GibbsSampler(Dna, k, t, N)
-#     randomly select k-mers Motifs = (Motif1, …, Motift) in each string from Dna
-#     BestMotifs ← Motifs
-#     for j ← 1 to N
-#         i ← Random(t)
-#         Profile ← profile matrix constructed from all strings in Motifs except for Motifi
-#         Motifi ← Profile-randomly generated k-mer in the i-th sequence
-#         if Score(Motifs) < Score(BestMotifs)
-#             BestMotifs ← Motifs
-#     return BestMotifs
-
 
 def gibbs_sampler(dna, k):
+    """GibbsSampler uses this random number generator to select a Profile-randomly generated k-mer at each step"""
     best_motifs = []
     t = len(dna)
     for string in dna:
@@ -311,7 +321,7 @@ def gibbs_sampler(dna, k):
     while score_not_improved_times < 100:
         random_dna_index = random.randint(0, t-1)
         del motifs[random_dna_index]
-        profile = motif_matrix_with_pseudocounts(motifs, k)
+        profile = probability_matrix_with_pseudocounts(motifs, k)
         motif_i = profile_randomly_generated_k_mer(dna[random_dna_index], k, profile)
         motifs.insert(random_dna_index, motif_i)
         score_motifs = score_matrix(motifs, k)
@@ -324,6 +334,7 @@ def gibbs_sampler(dna, k):
 
 
 def many_runs_gibbs_sampler(dna, k):
+    """returns the strings BestMotifs resulting from running GibbsSampler(Dna, k) with many random starts"""
     best_score = math.inf
     best_motifs = []
     for i in range(50):
