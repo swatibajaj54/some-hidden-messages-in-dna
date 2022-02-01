@@ -216,6 +216,7 @@ def greedy_motif_search_with_pseudocounts(dna, k, t):
     applying GreedyMotifSearch(Dna, k, t) with pseudocounts"""
     ist_k_mers = []
     result = ''
+    new_matrix_score = ''
     for string in dna:
           ist_k_mers.append(string[:k])
     best_motifs_score = score_matrix(ist_k_mers, k)
@@ -236,7 +237,7 @@ def greedy_motif_search_with_pseudocounts(dna, k, t):
             if new_matrix_score < best_motifs_score:
                 best_motifs_score = new_matrix_score
                 result = motifs
-    return result
+    return result, new_matrix_score
 
 
 
@@ -265,7 +266,7 @@ def randomized_motif_search(dna, k):
         motifs.append(k_mer)
     score_best_motifs = score_matrix(motifs, k)
     score_not_improved_times = 0
-    while score_not_improved_times < 1:
+    while score_not_improved_times < 20:
         profile = probability_matrix_with_pseudocounts(motifs, k)
         probable_motifs = []
         for string in dna:
@@ -318,7 +319,7 @@ def gibbs_sampler(dna, k):
     score_best_motifs = score_matrix(best_motifs, k)
     motifs = best_motifs
     score_not_improved_times = 0
-    while score_not_improved_times < 100:
+    while score_not_improved_times < 200:
         random_dna_index = random.randint(0, t-1)
         del motifs[random_dna_index]
         profile = probability_matrix_with_pseudocounts(motifs, k)
@@ -334,17 +335,43 @@ def gibbs_sampler(dna, k):
 
 
 def many_runs_gibbs_sampler(dna, k):
-    """returns the strings BestMotifs resulting from running GibbsSampler(Dna, k) with many random starts"""
+    """returns the strings BestMotifs resulting from running GibbsSampler(Dna, k) with many random starts
+    and consensus motif"""
     best_score = math.inf
     best_motifs = []
-    for i in range(50):
+    for i in range(100):
         score, motifs = gibbs_sampler(dna, k)
         if score < best_score:
             best_score = score
             best_motifs = motifs
     print("score: ", best_score)
     print("best motifs: ", best_motifs)
-    return best_motifs
+    consensus_motif_generated = consensus_motif(best_motifs, k)
+    return best_motifs, consensus_motif_generated
+
+
+def consensus_motif(motifs, k):
+    """Returns consensus motif"""
+    motif_matrix = {"A": [0]*k, "T": [0]*k, "G": [0]*k, "C": [0]*k}
+    for motif in motifs:
+        for index, char in enumerate(motif):
+            motif_matrix[char][index] = motif_matrix[char][index]+1
+    i = 0
+    motif = []
+    while i < k:
+        current_value = 0
+        max_valued_key = ''
+        for key in motif_matrix:
+            if motif_matrix[key][i] > current_value:
+                current_value = motif_matrix[key][i]
+                max_valued_key = key
+        motif.append(max_valued_key)
+        i = i + 1
+    string_motif = ''.join(motif)
+    return string_motif
+
+
+
 
 
 
