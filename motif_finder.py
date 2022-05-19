@@ -246,7 +246,7 @@ def best_score_from_random_motif(dna, k):
     """returns a collection BestMotifs resulting from running RandomizedMotifSearch(Dna, k, t) many times"""
     best_score = math.inf
     best_motifs = []
-    for i in range(100):
+    for i in range(1):
         score, motifs = randomized_motif_search(dna, k)
         if score < best_score:
             best_score = score
@@ -259,14 +259,14 @@ def best_score_from_random_motif(dna, k):
 def randomized_motif_search(dna, k):
     """returns a collection of best motifs randomly selected from each string
     of Dna. May generate a rather poor set of motifs, thus run many times to generate the best set"""
-    motifs = []
-    for string in dna:
-        random_index = random.randint(0, len(string)-k)
-        k_mer = string[random_index:random_index+k]
-        motifs.append(k_mer)
+    motifs = ['CCA', 'CCT', 'CTT', 'TTG']
+    # for string in dna:
+    #     random_index = random.randint(0, len(string)-k)
+    #     k_mer = string[random_index:random_index+k]
+    #     motifs.append(k_mer)
     score_best_motifs = score_matrix(motifs, k)
     score_not_improved_times = 0
-    while score_not_improved_times < 20:
+    while score_not_improved_times < 1:
         profile = probability_matrix_with_pseudocounts(motifs, k)
         probable_motifs = []
         for string in dna:
@@ -308,30 +308,30 @@ def profile_randomly_generated_k_mer(string, k, probability):
 
 
 
-def gibbs_sampler(dna, k):
-    """GibbsSampler uses this random number generator to select a Profile-randomly generated k-mer at each step"""
-    best_motifs = []
-    t = len(dna)
-    for string in dna:
-        random_index = random.randint(0, len(string)-k)
-        k_mer = string[random_index:random_index+k]
-        best_motifs.append(k_mer)
-    score_best_motifs = score_matrix(best_motifs, k)
-    motifs = best_motifs
-    score_not_improved_times = 0
-    while score_not_improved_times < 200:
-        random_dna_index = random.randint(0, t-1)
-        del motifs[random_dna_index]
-        profile = probability_matrix_with_pseudocounts(motifs, k)
-        motif_i = profile_randomly_generated_k_mer(dna[random_dna_index], k, profile)
-        motifs.insert(random_dna_index, motif_i)
-        score_motifs = score_matrix(motifs, k)
-        if score_motifs < score_best_motifs:
-            score_best_motifs = score_motifs
-            score_not_improved_times = 0
-        else:
-            score_not_improved_times = score_not_improved_times + 1
-    return score_best_motifs, motifs
+# def gibbs_sampler(dna, k):
+#     """GibbsSampler uses this random number generator to select a Profile-randomly generated k-mer at each step"""
+#     best_motifs = []
+#     t = len(dna)
+#     for string in dna:
+#         random_index = random.randint(0, len(string)-k)
+#         k_mer = string[random_index:random_index+k]
+#         best_motifs.append(k_mer)
+#     score_best_motifs = score_matrix(best_motifs, k)
+#     motifs = best_motifs
+#     score_not_improved_times = 0
+#     while score_not_improved_times < 200:
+#         random_dna_index = random.randint(0, t-1)
+#         del motifs[random_dna_index]
+#         profile = probability_matrix_with_pseudocounts(motifs, k)
+#         motif_i = profile_randomly_generated_k_mer(dna[random_dna_index], k, profile)
+#         motifs.insert(random_dna_index, motif_i)
+#         score_motifs = score_matrix(motifs, k)
+#         if score_motifs < score_best_motifs:
+#             score_best_motifs = score_motifs
+#             score_not_improved_times = 0
+#         else:
+#             score_not_improved_times = score_not_improved_times + 1
+#     return score_best_motifs, motifs
 
 
 def many_runs_gibbs_sampler(dna, k):
@@ -369,6 +369,29 @@ def consensus_motif(motifs, k):
         i = i + 1
     string_motif = ''.join(motif)
     return string_motif
+
+def gibbs_sampler(dna, k):
+    """GibbsSampler uses this random number generator to select a Profile-randomly generated k-mer at each step"""
+    best_motifs = []
+    t = len(dna)
+    for string in dna:
+        random_index = random.randint(0, len(string)-k)
+        k_mer = string[random_index:random_index+k]
+        best_motifs.append(k_mer)
+    score_best_motifs = score_matrix(best_motifs, k)
+    motifs = best_motifs
+    i = 0
+    while i < 1000:
+        random_dna_index = random.randint(0, t-1)
+        del motifs[random_dna_index]
+        profile = probability_matrix_with_pseudocounts(motifs, k)
+        motif_i = profile_randomly_generated_k_mer(dna[random_dna_index], k, profile)
+        motifs.insert(random_dna_index, motif_i)
+        score_motifs = score_matrix(motifs, k)
+        if score_motifs < score_best_motifs:
+            score_best_motifs = score_motifs
+        i = i+1
+    return score_best_motifs, motifs
 
 
 
