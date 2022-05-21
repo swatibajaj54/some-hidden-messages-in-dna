@@ -1,21 +1,22 @@
 import copy
 
+
 def string_composition(text, k):
     i = 0
     string_comp = []
-    while i <= len(text)-k:
-        string = text[i:i+k]
+    while i <= len(text) - k:
+        string = text[i : i + k]
         string_comp.append(string)
-        i = i+1
+        i = i + 1
     return string_comp
 
 
 def string_spelled_by_genome_path(genome_path):
     k = len(genome_path[0])
-    reconstruction = [genome_path[0][0:k-1]]
+    reconstruction = [genome_path[0][0 : k - 1]]
     for item in genome_path:
-        reconstruction.append(item[k-1])
-    string_reconstruction = ''.join(reconstruction)
+        reconstruction.append(item[k - 1])
+    string_reconstruction = "".join(reconstruction)
     return string_reconstruction
 
 
@@ -24,7 +25,7 @@ def overlap_graph_problem(patterns):
     prefix_dict = {}
     adjacency_list = {}
     for item in patterns:
-        key = item[0:k-1]
+        key = item[0 : k - 1]
         val = prefix_dict.get(key)
         val = val + " " if val else ""
         val = val + item
@@ -41,7 +42,7 @@ def de_bruijn_graph(patterns):
     de_bruijn_dict = {}
     k = len(patterns[0])
     for item in patterns:
-        key = item[0:k-1]
+        key = item[0 : k - 1]
         value = item[1:k]
         val = de_bruijn_dict.get(key)
         if val:
@@ -99,24 +100,3 @@ def eulerian_cycle(adjacency_dict: dict):
         previous_cycle = copy.deepcopy(current_cycle)
 
     print("Current Cycle: ", current_cycle)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

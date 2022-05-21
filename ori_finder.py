@@ -1,29 +1,22 @@
-
-
-
 def count(text, pattern):
     """How many times the given pattern appears in the text"""
     i = 0
     n = 0
     while i <= len(text) - len(pattern):
-        if text[i:i+len(pattern)] == pattern:
+        if text[i : i + len(pattern)] == pattern:
             n = n + 1
         i = i + 1
     return n
 
 
-
 def reverse_compliment(pattern):
     """returns reverse complement for the input pattern"""
-    compliment = {'C': 'G',
-                  'G': 'C',
-                  'A': 'T',
-                  'T': 'A'}
+    compliment = {"C": "G", "G": "C", "A": "T", "T": "A"}
     output = []
     for key in pattern:
         output.append(compliment[key])
-    reverse_output = (output[::-1])
-    output_str1 = ''.join(reverse_output)
+    reverse_output = output[::-1]
+    output_str1 = "".join(reverse_output)
     return output_str1
 
 
@@ -32,7 +25,7 @@ def frequent_words(text, k):
     i = 0
     d = {}
     while i <= len(text) - k:
-        pattern = text[i:i + k]
+        pattern = text[i : i + k]
         d[pattern] = d.get(pattern, 0) + 1
         i = i + 1
     print(d)
@@ -45,19 +38,15 @@ def frequent_words(text, k):
     return frequent_pattern
 
 
-
-
 def frequency_table(text, k):
     """returns frequency table for k_mers of length k in the text"""
     d = {}
     i = 0
-    while i <= len(text)-k:
-        pattern = text[i:i+k]
+    while i <= len(text) - k:
+        pattern = text[i : i + k]
         d[pattern] = d.get(pattern, 0) + 1
-        i = i+1
+        i = i + 1
     return d
-
-
 
 
 def find_clumps(text, k, L, t):
@@ -66,16 +55,14 @@ def find_clumps(text, k, L, t):
     i = 0
     my_result = set()
     while i <= len(text) - L:
-        window = text[i:i+L]
+        window = text[i : i + L]
         freq_map = frequency_table(window, k)
         """FrequencyTable function will produce a frequency table for a given window of a string of length L"""
         for key in freq_map:
             if freq_map[key] >= t:
                 my_result.add(key)
-        i = i+1
+        i = i + 1
     return list(my_result)
-
-
 
 
 def get_skew_diag_data(genome):
@@ -85,12 +72,12 @@ def get_skew_diag_data(genome):
     # print(output, end=' ')
     result.append(output)
     for i in genome:
-        if i == 'C':
-            output = output-1
+        if i == "C":
+            output = output - 1
             # print(output, end=' ')
             result.append(output)
-        elif i == 'G':
-            output = output+1
+        elif i == "G":
+            output = output + 1
             # print(output, end=' ')
             result.append(output)
         else:
@@ -110,8 +97,6 @@ def minimum_skew_value(genome):
     return result
 
 
-
-
 def get_hamming_mismatch(genome1, genome2):
     """returns the number of mismatches between strings"""
     count = 0
@@ -124,10 +109,10 @@ def get_hamming_mismatch(genome1, genome2):
 def get_pattern_match(genome, pattern):
     i = 0
     output = []
-    while i < len(genome) - len(pattern)+1:
-        if genome[i:i + len(pattern)] == pattern:
+    while i < len(genome) - len(pattern) + 1:
+        if genome[i : i + len(pattern)] == pattern:
             output.append(i)
-        i = i+1
+        i = i + 1
     return output
 
 
@@ -136,23 +121,27 @@ def get_approximate_pattern_match(genome, pattern, mismatch_count):
     i = 0
     output = []
     while i < len(genome) - len(pattern) + 1:
-        if get_hamming_mismatch(pattern, genome[i:i+len(pattern)]) <= mismatch_count:
+        if (
+            get_hamming_mismatch(pattern, genome[i : i + len(pattern)])
+            <= mismatch_count
+        ):
             output.append(i)
         i += 1
     return output
 
 
 def get_approximate_pattern_count(genome, pattern, mismatch_count):
-    """ returns the total number of occurrences of Pattern in Text with at most d mismatches"""
+    """returns the total number of occurrences of Pattern in Text with at most d mismatches"""
     i = 0
     count = 0
     while i < len(genome) - len(pattern) + 1:
-        if get_hamming_mismatch(pattern, genome[i:i+len(pattern)]) <= mismatch_count:
+        if (
+            get_hamming_mismatch(pattern, genome[i : i + len(pattern)])
+            <= mismatch_count
+        ):
             count += 1
         i += 1
     return count
-
-
 
 
 def suffix(pattern):
@@ -165,18 +154,17 @@ def neighbors(pattern, d):
     if d == 0:
         return {pattern}
     if len(pattern) == 1:
-        return {'A', 'G', 'T', 'C'}
+        return {"A", "G", "T", "C"}
     neighborhood = set()
     suffix_pattern = suffix(pattern)
     suffix_neighbors = neighbors(suffix_pattern, d)
     for text in suffix_neighbors:
         if get_hamming_mismatch(suffix_pattern, text) < d:
             for x in nucleotide:
-                neighborhood.add(x+text)
+                neighborhood.add(x + text)
         else:
-            neighborhood.add(pattern[0]+text)
+            neighborhood.add(pattern[0] + text)
     return neighborhood
-
 
 
 def frequent_words_with_mismatches(Text, k, d):
@@ -184,13 +172,13 @@ def frequent_words_with_mismatches(Text, k, d):
     patterns = []
     freqMap = {}
     i = 0
-    while i <= len(Text)-k:
-        pattern = Text[i:i + k]
+    while i <= len(Text) - k:
+        pattern = Text[i : i + k]
         neighborhood = list(neighbors(pattern, d))
         # print(neighborhood)
         for item in neighborhood:
             freqMap[item] = freqMap.get(item, 0) + 1
-        i = i+1
+        i = i + 1
     max_count = freqMap[max(freqMap, key=freqMap.get)]
     print(max_count)
     print(freqMap)
@@ -206,50 +194,18 @@ def frequent_words_with_mismatches_and_rc(text, k, d):
     patterns = []
     freq_map = {}
     i = 0
-    while i <= len(text)-k:
-        pattern = text[i:i + k]
+    while i <= len(text) - k:
+        pattern = text[i : i + k]
         forward_neighborhood = list(neighbors(pattern, d))
         reverse_neighbourhood = list(neighbors(reverse_compliment(pattern), d))
         for item in forward_neighborhood:
             freq_map[item] = freq_map.get(item, 0) + 1
         for item in reverse_neighbourhood:
             freq_map[item] = freq_map.get(item, 0) + 1
-        i = i+1
+        i = i + 1
     max_count = freq_map[max(freq_map, key=freq_map.get)]
     for key in freq_map:
         if freq_map[key] == max_count:
             patterns.append(key)
     print(max_count)
     return patterns
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
